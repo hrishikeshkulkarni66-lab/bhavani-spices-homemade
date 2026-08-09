@@ -877,14 +877,9 @@ document.head.appendChild(styleSheet);
 
 function initLoginGateway() {
     const isLoggedIn = localStorage.getItem('bhavani_user_logged_in');
-    const userEmail = localStorage.getItem('bhavani_user_email');
     
     // Toggle Admin Dashboard Link in settings sidebar
-    if (userEmail === 'hrishikeshkulkarni66@gmail.com' && dom.adminLink) {
-        dom.adminLink.classList.remove('hidden');
-    } else if (dom.adminLink) {
-        dom.adminLink.classList.add('hidden');
-    }
+    syncAdminLinkVisibility();
 
     if (isLoggedIn === 'true' || isLoggedIn === 'guest') {
         dom.loginGateway.classList.add('fade-out');
@@ -982,9 +977,7 @@ async function handleLoginSubmit(e) {
                 loadUserCart();
                 
                 // Show admin link immediately upon login if admin
-                if (email === 'hrishikeshkulkarni66@gmail.com' && dom.adminLink) {
-                    dom.adminLink.classList.remove('hidden');
-                }
+                syncAdminLinkVisibility();
                 
                 // Transition animations
                 dom.loginGateway.classList.add('fade-out');
@@ -1021,6 +1014,8 @@ function showValidationError(message) {
 
 function handleGuestLogin() {
     localStorage.setItem('bhavani_user_logged_in', 'guest');
+    localStorage.removeItem('bhavani_user_email');
+    syncAdminLinkVisibility();
     showToast("Welcome! Exploring catalog as Guest. Sign in required to place orders.", "success");
     
     // Load guest-specific cart
@@ -1057,12 +1052,8 @@ function handleSignOut(e) {
     
     localStorage.removeItem('bhavani_user_logged_in');
     localStorage.removeItem('bhavani_user_email');
+    syncAdminLinkVisibility();
     showToast("You have been signed out.", "info");
-    
-    // Hide admin link on sign out
-    if (dom.adminLink) {
-        dom.adminLink.classList.add('hidden');
-    }
     
     // Transition back to login page
     dom.storefrontApp.classList.remove('visible');
@@ -1079,6 +1070,7 @@ function handleSignOut(e) {
    ========================================================================== */
 
 function openSidebarMenu() {
+    syncAdminLinkVisibility();
     dom.sidebarDrawer.classList.add('active');
     dom.sidebarOverlay.classList.add('active');
     document.body.style.overflow = 'hidden'; // Prevent body scrolling
@@ -1699,10 +1691,29 @@ async function getChatbotResponse(input) {
 
 const ADMIN_EMAIL = 'hrishikeshkulkarni66@gmail.com';
 
+function checkIsAdmin() {
+    const userEmail = (localStorage.getItem('bhavani_user_email') || '').toLowerCase().trim();
+    const isLoggedIn = localStorage.getItem('bhavani_user_logged_in');
+    return isLoggedIn === 'true' && userEmail === ADMIN_EMAIL;
+}
+
+function syncAdminLinkVisibility() {
+    if (dom.adminLink) {
+        if (checkIsAdmin()) {
+            dom.adminLink.classList.remove('hidden');
+        } else {
+            dom.adminLink.classList.add('hidden');
+        }
+    }
+}
+
 function openAdminDashboardDrawer() {
-    const currentUser = localStorage.getItem('bhavani_user_email');
-    if (currentUser !== ADMIN_EMAIL) {
-        showToast("Access denied. Admin privileges required.", "warning");
+    if (!checkIsAdmin()) {
+        syncAdminLinkVisibility();
+        dom.adminDrawer.classList.remove('active');
+        dom.adminOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+        showToast("Access Denied: Only Admin (hrishikeshkulkarni66@gmail.com) can access the Admin Panel.", "error");
         return;
     }
     dom.adminDrawer.classList.add('active');
@@ -1806,6 +1817,10 @@ async function renderAdminOrders() {
 }
 
 window.updateAdminOrderStatus = async (orderId, newStatus) => {
+    if (!checkIsAdmin()) {
+        showToast("Access Denied: Admin privileges required.", "error");
+        return;
+    }
     try {
         await db.updateOrderStatus(orderId, newStatus);
         showToast(`Order ${orderId} → ${newStatus.toUpperCase()}`, "success");
@@ -1875,6 +1890,10 @@ async function renderAdminStock() {
 }
 
 window.saveAdminPrice = async (productId) => {
+    if (!checkIsAdmin()) {
+        showToast("Access Denied: Admin privileges required.", "error");
+        return;
+    }
     const input = document.getElementById(`price-${productId}`);
     const newPrice = parseFloat(input.value);
     if (isNaN(newPrice) || newPrice <= 0) {
@@ -1896,6 +1915,10 @@ window.saveAdminPrice = async (productId) => {
 };
 
 window.saveStockStatus = async (productId, status) => {
+    if (!checkIsAdmin()) {
+        showToast("Access Denied: Admin privileges required.", "error");
+        return;
+    }
     try {
         await db.updateStockStatus(productId, status);
         const product = PRODUCTS.find(p => p.id === productId);
@@ -1962,6 +1985,10 @@ async function applyCustomPrices() {
 // Handle submit of Add New Product form
 async function handleAddProductSubmit(e) {
     e.preventDefault();
+    if (!checkIsAdmin()) {
+        showToast("Access Denied: Admin privileges required.", "error");
+        return;
+    }
 
     const name = document.getElementById('add-prod-name').value.trim();
     const category = document.getElementById('add-prod-category').value;
@@ -2032,6 +2059,10 @@ async function handleAddProductSubmit(e) {
 }
 
 window.deleteAdminProduct = async (productId) => {
+    if (!checkIsAdmin()) {
+        showToast("Access Denied: Admin privileges required.", "error");
+        return;
+    }
     if (!confirm('Are you sure you want to remove this product from the storefront?')) return;
     try {
         PRODUCTS = PRODUCTS.filter(p => p.id !== productId);
