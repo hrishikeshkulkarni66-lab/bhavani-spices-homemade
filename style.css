@@ -3275,3 +3275,31 @@ body.light-theme .testimonial-card {
         font-size: 1rem;
     }
 }
+
+/* Storefront Out of Stock & Low Stock Styles */
+.product-card.out-of-stock-card .product-img {
+    filter: grayscale(0.6) opacity(0.65);
+}
+
+.product-badge.out-of-stock-badge {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    font-weight: 800;
+}
+
+.product-badge.low-stock-badge {
+    background: #f59e0b !important;
+    color: #ffffff !important;
+    font-weight: 800;
+}
+
+.add-to-cart-btn.disabled-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+    cursor: not-allowed !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
