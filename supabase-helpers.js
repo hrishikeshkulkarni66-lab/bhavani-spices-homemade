@@ -38,12 +38,35 @@ const db = {
         const { data, error } = await supabaseClient
             .from('profiles')
             .select('*')
-            .order('created_at', { ascending: false });
         if (error) {
             console.error('Supabase getAllUsers error:', error);
             return [];
         }
         return data || [];
+    },
+
+    async updateUserProfile(email, newName) {
+        const { data, error } = await supabaseClient
+            .from('profiles')
+            .update({ name: newName })
+            .eq('email', email)
+            .select();
+        if (error) {
+            console.warn('Supabase updateUserProfile note:', error.message);
+        }
+        return data;
+    },
+
+    async updateProductDetails(productId, newName, newPrice) {
+        const { data, error } = await supabaseClient
+            .from('products')
+            .update({ name: newName, price: newPrice, updated_at: new Date().toISOString() })
+            .eq('id', productId)
+            .select();
+        if (error) {
+            console.warn('Supabase updateProductDetails note:', error.message);
+        }
+        return data;
     },
 
     // ---- ORDERS ----

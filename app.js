@@ -166,7 +166,14 @@ const dom = {
     adminDrawer: document.getElementById('admin-dashboard-drawer'),
     adminOverlay: document.getElementById('admin-dashboard-overlay'),
     adminClose: document.getElementById('admin-dashboard-close'),
-    adminContainer: document.getElementById('admin-dashboard-container')
+    adminContainer: document.getElementById('admin-dashboard-container'),
+
+    // Customer Profile elements
+    profileLink: document.getElementById('sidebar-link-profile'),
+    profileDrawer: document.getElementById('profile-drawer'),
+    profileOverlay: document.getElementById('profile-overlay'),
+    profileClose: document.getElementById('profile-close'),
+    profileContainer: document.getElementById('profile-container')
 };
 
 /* ==========================================================================
@@ -362,6 +369,17 @@ function setupEventListeners() {
         });
         dom.adminClose.addEventListener('click', closeAdminDashboardDrawer);
         dom.adminOverlay.addEventListener('click', closeAdminDashboardDrawer);
+    }
+
+    // Customer Profile Event Listeners
+    if (dom.profileLink) {
+        dom.profileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeSidebarMenu();
+            openProfileDrawer();
+        });
+        dom.profileClose.addEventListener('click', closeProfileDrawer);
+        dom.profileOverlay.addEventListener('click', closeProfileDrawer);
     }
 
     // Admin Add Product Form Event Listeners
@@ -722,27 +740,31 @@ function openCheckoutModal() {
         dom.checkoutSummaryList.appendChild(itemRow);
     });
 
-    // Pre-fill full name and email of currently logged-in registered user
+    // Pre-fill full name, email, address, and payment of currently logged-in user
     const userEmail = localStorage.getItem('bhavani_user_email');
     if (userEmail) {
+        const savedName = localStorage.getItem('bhavani_user_name_' + userEmail);
+        const savedAddress = JSON.parse(localStorage.getItem('bhavani_address_' + userEmail) || '{}');
+        const savedPayment = JSON.parse(localStorage.getItem('bhavani_payment_' + userEmail) || '{}');
+
         const users = JSON.parse(localStorage.getItem('bhavani_mock_users') || '[]');
         const matched = users.find(u => u.email === userEmail);
         
-        let nameToFill = "";
-        let emailToFill = userEmail;
-        
-        if (matched) {
-            nameToFill = matched.name;
-        } else if (userEmail === 'hrishikeshkulkarni66@gmail.com') {
-            nameToFill = "Bhavani Admin";
-        } else if (userEmail === 'bhavani@spices.com') {
-            nameToFill = "Bhavani Partner";
-        }
+        let nameToFill = savedName || (matched ? matched.name : (userEmail === ADMIN_EMAIL ? "Bhavani Admin" : userEmail.split('@')[0]));
         
         const fullNameInput = document.getElementById('full-name');
         const emailInput = document.getElementById('email-address');
+        const addressInput = document.getElementById('shipping-address');
+        const cityInput = document.getElementById('city');
+        const postalInput = document.getElementById('postal-code');
+        const cardInput = document.getElementById('payment-card');
+
         if (fullNameInput) fullNameInput.value = nameToFill;
-        if (emailInput) emailInput.value = emailToFill;
+        if (emailInput) emailInput.value = userEmail;
+        if (addressInput && savedAddress.street) addressInput.value = savedAddress.street;
+        if (cityInput && savedAddress.city) cityInput.value = savedAddress.city;
+        if (postalInput && savedAddress.postal) postalInput.value = savedAddress.postal;
+        if (cardInput && savedPayment.detail) cardInput.value = savedPayment.detail;
     }
 
     // Make modal active
@@ -1869,10 +1891,11 @@ async function renderAdminStock() {
                 </div>
             </div>
             <div class="admin-stock-controls">
-                <label class="admin-price-label">Price (₹)</label>
+                <label class="admin-price-label">Spice Title & Price (₹)</label>
                 <div class="admin-price-row">
-                    <input type="number" class="admin-price-input" id="price-${product.id}" value="${currentPrice}" min="1" step="10">
-                    <button class="admin-save-btn" onclick="saveAdminPrice('${product.id}')">Save Price</button>
+                    <input type="text" class="admin-price-input" id="name-${product.id}" value="${product.name}" placeholder="Item Title">
+                    <input type="number" class="admin-price-input" id="price-${product.id}" value="${currentPrice}" min="1" step="10" style="max-width: 90px;" placeholder="Price">
+                    <button class="admin-save-btn" onclick="saveAdminProductDetails('${product.id}')">Save Details</button>
                 </div>
                 <div class="admin-stock-status">
                     <label class="admin-price-label">Stock Status</label>
@@ -1889,30 +1912,52 @@ async function renderAdminStock() {
     });
 }
 
-window.saveAdminPrice = async (productId) => {
+window.saveAdminProductDetails = async (productId) => {
     if (!checkIsAdmin()) {
         showToast("Access Denied: Admin privileges required.", "error");
         return;
     }
-    const input = document.getElementById(`price-${productId}`);
-    const newPrice = parseFloat(input.value);
+    const nameInput = document.getElementById(`name-${productId}`);
+    const priceInput = document.getElementById(`price-${productId}`);
+    const newName = nameInput ? nameInput.value.trim() : '';
+    const newPrice = priceInput ? parseFloat(priceInput.value) : NaN;
+
+    if (!newName) {
+        showToast("Please enter a valid product title.", "warning");
+        return;
+    }
     if (isNaN(newPrice) || newPrice <= 0) {
         showToast("Please enter a valid price.", "warning");
         return;
     }
+
     try {
-        await db.updateProductPrice(productId, newPrice);
-        // Update the live PRODUCTS array and re-render storefront
+        await db.updateProductDetails(productId, newName, newPrice);
         const product = PRODUCTS.find(p => p.id === productId);
-        if (product) product.price = newPrice;
+        if (product) {
+            product.name = newName;
+            product.price = newPrice;
+        }
+
+        // Also update local storage if custom added product
+        const localAdded = JSON.parse(localStorage.getItem('bhavani_added_products') || '[]');
+        const localProd = localAdded.find(p => p.id === productId);
+        if (localProd) {
+            localProd.name = newName;
+            localProd.price = newPrice;
+            localStorage.setItem('bhavani_added_products', JSON.stringify(localAdded));
+        }
+
         renderProducts();
         updateCartUI();
-        showToast(`${product ? product.name : productId} price updated to ₹${newPrice.toFixed(2)}`, "success");
+        showToast(`Updated details for "${newName}"!`, "success");
     } catch (err) {
-        showToast('Failed to update price.', 'error');
+        showToast('Failed to update product details.', 'error');
         console.error(err);
     }
 };
+
+window.saveAdminPrice = window.saveAdminProductDetails;
 
 window.saveStockStatus = async (productId, status) => {
     if (!checkIsAdmin()) {
@@ -2149,5 +2194,145 @@ async function renderAdminCustomers() {
             ` : '<p style="font-size: 0.75rem; opacity: 0.5; margin-top: 8px;">No orders yet</p>'}
         `;
         listEl.appendChild(card);
+    });
+}
+
+/* ==========================================================================
+   CUSTOMER PROFILE DRAWER & MANAGEMENT
+   ========================================================================== */
+
+function openProfileDrawer() {
+    dom.profileDrawer.classList.add('active');
+    dom.profileOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderProfileDetails();
+}
+
+function closeProfileDrawer() {
+    dom.profileDrawer.classList.remove('active');
+    dom.profileOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+async function renderProfileDetails() {
+    if (!dom.profileContainer) return;
+    
+    const userEmail = localStorage.getItem('bhavani_user_email') || 'Guest User';
+    const isLoggedIn = localStorage.getItem('bhavani_user_logged_in');
+    
+    // Fetch profile from Supabase or localStorage
+    let userName = localStorage.getItem('bhavani_user_name_' + userEmail);
+    if (!userName) {
+        const users = await db.getAllUsers();
+        const matched = users.find(u => u.email === userEmail);
+        if (matched && matched.name) {
+            userName = matched.name;
+        } else if (userEmail === ADMIN_EMAIL) {
+            userName = "Bhavani Admin";
+        } else if (userEmail === 'Guest User') {
+            userName = "Guest Shopper";
+        } else {
+            userName = userEmail.split('@')[0];
+        }
+    }
+    
+    const savedAddress = JSON.parse(localStorage.getItem('bhavani_address_' + userEmail) || '{}');
+    const savedPayment = JSON.parse(localStorage.getItem('bhavani_payment_' + userEmail) || '{}');
+
+    const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
+    const isAdmin = checkIsAdmin();
+
+    dom.profileContainer.innerHTML = `
+        <div class="profile-card">
+            <div class="profile-header-info">
+                <div class="profile-avatar">${initials}</div>
+                <div>
+                    <div class="profile-user-name">${userName}</div>
+                    <div class="profile-user-email">${userEmail}</div>
+                    <span class="profile-role-badge">${isAdmin ? '🛡️ Master Admin' : (isLoggedIn === 'true' ? '✨ Verified Member' : '👁️ Guest Visitor')}</span>
+                </div>
+            </div>
+        </div>
+
+        <form id="profile-name-form" class="profile-form-section">
+            <h4>👤 Personal Information</h4>
+            <div class="form-group">
+                <label for="prof-display-name">Full Name</label>
+                <input type="text" id="prof-display-name" value="${userName}" required placeholder="Your full name">
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm" style="align-self: flex-start;">Save Name</button>
+        </form>
+
+        <form id="profile-address-form" class="profile-form-section">
+            <h4>📍 Shipping Address</h4>
+            <div class="form-group">
+                <label for="prof-street">Street Address</label>
+                <input type="text" id="prof-street" value="${savedAddress.street || ''}" placeholder="House / Flat No, Street, Area">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="prof-city">City</label>
+                    <input type="text" id="prof-city" value="${savedAddress.city || ''}" placeholder="Mumbai">
+                </div>
+                <div class="form-group">
+                    <label for="prof-postal">ZIP / Postal Code</label>
+                    <input type="text" id="prof-postal" value="${savedAddress.postal || ''}" placeholder="400001">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm" style="align-self: flex-start;">Save Address</button>
+        </form>
+
+        <form id="profile-payment-form" class="profile-form-section">
+            <h4>💳 Saved Payment Details</h4>
+            <div class="form-group">
+                <label for="prof-pay-method">Preferred Payment Method</label>
+                <select id="prof-pay-method" style="padding: 8px 12px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff;">
+                    <option value="upi" ${savedPayment.method === 'upi' ? 'selected' : ''}>📱 UPI (GPay / PhonePe / Paytm)</option>
+                    <option value="card" ${savedPayment.method === 'card' ? 'selected' : ''}>💳 Credit / Debit Card</option>
+                    <option value="cod" ${savedPayment.method === 'cod' ? 'selected' : ''}>💵 Cash on Delivery</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="prof-pay-detail">UPI VPA ID or Card Number</label>
+                <input type="text" id="prof-pay-detail" value="${savedPayment.detail || ''}" placeholder="e.g. name@upi or 4111222233334444">
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm" style="align-self: flex-start;">Save Payment Details</button>
+        </form>
+    `;
+
+    // Attach form submission handlers
+    document.getElementById('profile-name-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newName = document.getElementById('prof-display-name').value.trim();
+        if (!newName) return;
+        localStorage.setItem('bhavani_user_name_' + userEmail, newName);
+        try {
+            await db.updateUserProfile(userEmail, newName);
+        } catch (err) {
+            console.warn(err);
+        }
+        showToast("Profile name updated!", "success");
+        renderProfileDetails();
+    });
+
+    document.getElementById('profile-address-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const addressData = {
+            street: document.getElementById('prof-street').value.trim(),
+            city: document.getElementById('prof-city').value.trim(),
+            postal: document.getElementById('prof-postal').value.trim()
+        };
+        localStorage.setItem('bhavani_address_' + userEmail, JSON.stringify(addressData));
+        showToast("Shipping address saved!", "success");
+    });
+
+    document.getElementById('profile-payment-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const paymentData = {
+            method: document.getElementById('prof-pay-method').value,
+            detail: document.getElementById('prof-pay-detail').value.trim()
+        };
+        localStorage.setItem('bhavani_payment_' + userEmail, JSON.stringify(paymentData));
+        showToast("Payment preferences saved!", "success");
     });
 }
