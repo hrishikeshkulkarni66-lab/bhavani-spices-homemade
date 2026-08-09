@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhavani Homemade Products | Premium Organic Spices</title>
+    <meta name="description" content="Discover the finest artisanal, organic, and small-batch ground Indian spices from Bhavani Homemade Products.">
+    <!-- Open Graph / Facebook / WhatsApp Share Metadata -->
+    <meta property="og:title" content="Bhavani Homemade Products | Premium Organic Spices">
+    <meta property="og:description" content="Discover the finest artisanal, organic, and small-batch ground Indian spices from Bhavani Homemade Products. Sourced ethically and ground fresh.">
+    <meta property="og:image" content="assets/hero_spices.jpg">
+    <meta property="og:url" content="http://localhost:3000">
+    <meta property="og:type" content="website">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Login Gateway Page -->
+    <div id="login-gateway" class="login-wrapper">
+        <div class="login-bg-overlay"></div>
+        <div class="login-container">
+            <div class="login-brand text-center">
+                <svg class="login-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                </svg>
+                <h2>Bhavani Homemade Products</h2>
+                <p class="login-tagline">Artisanal, Pure & Organic Spices</p>
+            </div>
+            
+            <div class="login-card">
+                <h3 class="login-title" id="login-card-title">Sign In</h3>
+                <form id="login-form" class="login-form">
+                    <div class="form-group hidden" id="signup-name-group">
+                        <label for="login-name">Full Name</label>
+                        <input type="text" id="login-name" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-email" id="login-email-label">Email or Username</label>
+                        <input type="text" id="login-email" required placeholder="Enter email/username">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="login-password" required placeholder="••••••••">
+                            <button type="button" class="password-toggle-btn" id="password-toggle" aria-label="Toggle Password Visibility">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-icon">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group hidden" id="signup-confirm-group">
+                        <label for="login-confirm-password">Confirm Password</label>
+                        <input type="password" id="login-confirm-password" placeholder="••••••••">
+                    </div>
+                    <div class="login-options-row" id="login-options-row">
+                        <label class="remember-me-label">
+                            <input type="checkbox" id="remember-me">
+                            <span>Remember Me</span>
+                        </label>
+                        <a href="#" class="forgot-pwd-link" onclick="event.preventDefault(); alert('For this demo, you can enter any username and password to log in!');">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block login-submit-btn" id="login-submit-btn">
+                        <span>Sign In</span>
+                    </button>
+                </form>
+                <div class="login-divider">
+                    <span>or</span>
+                </div>
+                <button class="btn btn-secondary btn-block guest-btn" id="explore-guest-btn">Explore as Guest</button>
+                <div class="login-toggle-mode text-center" style="margin-top: 20px; font-size: 0.85rem; color: var(--color-text-muted);">
+                    <span id="login-toggle-msg">Don't have an account? </span>
+                    <a href="#" id="toggle-login-mode-link" style="color: var(--color-accent-gold); font-weight: 600;">Sign up, it's free!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Storefront Main Application Content -->
+    <div id="storefront-app" class="hidden">
+
+        <!-- Header / Navigation -->
+        <header class="main-header">
+            <div class="container header-container">
+                <button class="sidebar-trigger-btn" id="sidebar-trigger" aria-label="Open Settings Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                
+                <a href="#" class="logo" id="header-logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                        <path d="M12 6c-3.31 0-6 2.69-6 6 0 1.66.67 3.16 1.76 4.24l1.42-1.42C8.43 14.07 8 13.09 8 12c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.09-.43 2.07-1.18 2.82l1.42 1.42C17.33 15.16 18 13.66 18 12c0-3.31-2.69-6-6-6z"/>
+                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    </svg>
+                    <span class="brand-text-full">Bhavani Homemade Products</span>
+                    <span class="brand-text-mobile">Bhavani Spices</span>
+                </a>
+                
+                <nav class="main-nav">
+                    <a href="#shop" class="nav-link">Shop</a>
+                    <a href="#story" class="nav-link">Our Story</a>
+                    <a href="#testimonials" class="nav-link">Reviews</a>
+                    <a href="#benefits" class="nav-link">Why Us</a>
+                    <a href="#newsletter" class="nav-link">Join Club</a>
+                    <a href="#" class="nav-link" id="nav-signout-btn" style="color: var(--color-primary);">Sign Out</a>
+                </nav>
+
+            <div class="header-actions">
+                <button class="cart-trigger-btn" id="cart-trigger" aria-label="Open Cart">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge" id="cart-badge-count">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg-overlay"></div>
+        <div class="container hero-container">
+            <div class="hero-content">
+                <span class="hero-tagline">100% Organic & Ethically Sourced</span>
+                <h1 class="hero-title">Artisanal Spices, Crafted for Connoisseurs</h1>
+                <p class="hero-description">Sourced directly from heritage spice farms in India, sun-dried, and ground in small batches to preserve natural essential oils and deliver unmatched aroma and flavor.</p>
+                <div class="hero-actions">
+                    <a href="#shop" class="btn btn-primary">Explore Our Blends</a>
+                    <a href="#story" class="btn btn-secondary">Our Heritage</a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator">
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+            <span>Scroll to Discover</span>
+        </div>
+    </section>
+
+    <!-- Key Benefits Section -->
+    <section id="benefits" class="benefits-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-tag">Pure & Unadulterated</span>
+                <h2 class="section-title">The Bhavani Guarantee</h2>
+            </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon-container">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="benefit-icon">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3 class="benefit-title">Zero Preservatives</h3>
+                    <p class="benefit-description">No fillers, food colorings, or anti-caking agents. Just pure spice as nature intended.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon-container">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="benefit-icon">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <h3 class="benefit-title">Ethically Sourced</h3>
+                    <p class="benefit-description">Fair trade practices directly supporting local Indian farmers and their heritage agricultural knowledge.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon-container">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="benefit-icon">
+                            <path d="M23 4a11.09 11.09 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 4z"/>
+                        </svg>
+                    </div>
+                    <h3 class="benefit-title">Small-Batch Freshness</h3>
+                    <p class="benefit-description">Freshly milled every week to prevent oxidation and locked in nitrogen-flushed containers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop / Product Section -->
+    <section id="shop" class="shop-section">
+        <div class="container">
+            <div class="shop-header">
+                <div>
+                    <span class="section-tag">Direct to Kitchen</span>
+                    <h2 class="section-title">Shop Our Collection</h2>
+                </div>
+                
+                <!-- Search & Filters Container -->
+                <div class="search-filter-wrapper">
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="search-input" placeholder="Search premium spices...">
+                    </div>
+                    <div class="filter-categories" id="filter-tabs">
+                        <button class="filter-tab active" data-category="all">All Items</button>
+                        <button class="filter-tab" data-category="blends">Signature Blends</button>
+                        <button class="filter-tab" data-category="single">Single Spices</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="product-grid" id="product-grid">
+                <!-- Products will be dynamically generated by app.js -->
+                <div class="skeleton-loader"></div>
+                <div class="skeleton-loader"></div>
+                <div class="skeleton-loader"></div>
+                <div class="skeleton-loader"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Story Section -->
+    <section id="story" class="story-section">
+        <div class="container story-container">
+            <div class="story-image-wrapper">
+                <img src="assets/hero_spices.jpg" alt="Aromatic whole spices" class="story-img">
+                <div class="story-img-badge">
+                    <span class="badge-num">100%</span>
+                    <span class="badge-text">Organic Certified</span>
+                </div>
+            </div>
+            
+            <div class="story-content">
+                <span class="section-tag">Our Heritage</span>
+                <h2 class="section-title">From Ancient Soils to Modern Kitchens</h2>
+                <p>Bhavani Homemade Products started with a single promise: to bring back the rich, untainted flavors of traditional Indian spices. In an era of mass production and artificial enhancements, we choose the slow road.</p>
+                <p>We work closely with family-owned farms across Kerala, Rajasthan, and Kashmir, selecting raw spices by aroma, size, and essential oil concentration. Sun-dried under the pristine Indian sky and ground using traditional stone-milling techniques that prevent heat build-up, our spices retain their authentic fragrance, vibrant color, and therapeutic properties.</p>
+                <a href="#shop" class="btn btn-primary">Taste the Difference</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section (Stacked 3D Carousel) -->
+    <section id="testimonials" class="testimonials-section">
+        <div class="container text-center">
+            <span class="section-tag">Spice Love</span>
+            <h2 class="section-title">Loved by Home Cooks & Chefs</h2>
+            <p class="section-description">Drag or swipe the cards below to see reviews from our culinary community.</p>
+            
+            <div class="testimonial-carousel-container" id="testimonial-carousel">
+                <!-- Transparent Drag Overlay -->
+                <div class="carousel-drag-overlay" id="carousel-drag-overlay"></div>
+                
+                <div class="testimonial-cards-wrapper" id="testimonial-cards-wrapper">
+                    <!-- Populated dynamically by app.js -->
+                </div>
+                
+                <!-- Carousel Indicators -->
+                <div class="carousel-indicators" id="carousel-indicators">
+                    <!-- Dots populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Settings & Navigation Sidebar / Drawer -->
+    <div class="sidebar-menu-overlay" id="sidebar-menu-overlay"></div>
+    <div class="sidebar-menu-drawer" id="sidebar-menu-drawer">
+        <div class="sidebar-menu-header">
+            <div class="sidebar-logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                </svg>
+                <span>Bhavani Menu</span>
+            </div>
+            <button class="sidebar-menu-close-btn" id="sidebar-menu-close" aria-label="Close Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu-content">
+            <!-- Navigation Section -->
+            <div class="sidebar-section">
+                <h4>Navigation</h4>
+                <nav class="sidebar-nav-list">
+                    <a href="#" class="sidebar-nav-link" id="sidebar-link-home">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span>Home</span>
+                    </a>
+                    <a href="#shop" class="sidebar-nav-link" id="sidebar-link-shop">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                        <span>Shop Spices</span>
+                    </a>
+                    <a href="#story" class="sidebar-nav-link" id="sidebar-link-story">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                        <span>Our Heritage</span>
+                    </a>
+                    <a href="#testimonials" class="sidebar-nav-link" id="sidebar-link-testimonials">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span>Reviews</span>
+                    </a>
+                    <a href="#" class="sidebar-nav-link" id="sidebar-link-orders">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+                        <span>Track Orders</span>
+                    </a>
+                    <a href="#" class="sidebar-nav-link hidden" id="sidebar-link-admin">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                        <span>Admin Dashboard</span>
+                    </a>
+                    <a href="#benefits" class="sidebar-nav-link" id="sidebar-link-benefits">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Why Bhavani</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="sidebar-section">
+                <h4>Preferences</h4>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Light Theme</span>
+                        <span class="setting-desc">Switch color scheme</span>
+                    </div>
+                    <label class="theme-toggle-switch">
+                        <input type="checkbox" id="theme-toggle-checkbox">
+                        <span class="theme-toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Notifications</span>
+                        <span class="setting-desc">Receive order updates</span>
+                    </div>
+                    <label class="theme-toggle-switch">
+                        <input type="checkbox" id="notify-toggle-checkbox" checked>
+                        <span class="theme-toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Language</span>
+                        <span class="setting-desc">Select store language</span>
+                    </div>
+                    <select class="setting-select" id="lang-select">
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी (Hindi)</option>
+                        <option value="ml">മലയാളം (Malayalam)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-menu-footer">
+            <button class="btn btn-secondary btn-block sidebar-signout-btn" id="sidebar-signout-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-link-icon" style="color:var(--color-primary)"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar / Drawer -->
+    <div class="cart-drawer-overlay" id="cart-overlay"></div>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-header">
+            <h3>Your Spice Basket</h3>
+            <button class="cart-close-btn" id="cart-close" aria-label="Close Cart">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="cart-items-container" id="cart-items">
+            <!-- Cart items will be rendered by app.js -->
+            <div class="empty-cart-message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="empty-cart-icon">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <p>Your basket is empty.</p>
+                <a href="#shop" class="btn btn-secondary btn-sm" id="cart-continue-shopping">Browse Spices</a>
+            </div>
+        </div>
+        
+        <div class="cart-footer" id="cart-footer">
+            <div class="cart-summary-row">
+                <span>Subtotal</span>
+                <span class="cart-subtotal" id="cart-subtotal">₹0.00</span>
+            </div>
+            <div class="cart-summary-row">
+                <span>Shipping</span>
+                <span class="cart-shipping" id="cart-shipping">FREE</span>
+            </div>
+            <div class="cart-summary-row total-row">
+                <span>Total</span>
+                <span class="cart-total" id="cart-total">₹0.00</span>
+            </div>
+            <button class="btn btn-primary btn-block checkout-btn" id="checkout-trigger">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal-overlay" id="checkout-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="modal-close" aria-label="Close Checkout Modal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            
+            <div id="checkout-step-form">
+                <h3 class="modal-title">Complete Your Spice Order</h3>
+                <div class="modal-grid">
+                    <!-- Billing & Shipping Details -->
+                    <form id="shipping-form" class="checkout-form">
+                        <div class="form-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" required placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="email-address">Email Address</label>
+                            <input type="email" id="email-address" required placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="shipping-address">Shipping Address</label>
+                            <input type="text" id="shipping-address" required placeholder="123 Spice Route Lane">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" required placeholder="Mumbai">
+                            </div>
+                            <div class="form-group">
+                                <label for="postal-code">ZIP / Postal Code</label>
+                                <input type="text" id="postal-code" required placeholder="400001">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment-card">Card Number</label>
+                            <div class="input-icon-wrapper">
+                                <input type="text" id="payment-card" required placeholder="4111 2222 3333 4444" pattern="\d{16}" title="16-digit credit card number">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="place-order-btn">
+                            Place Order - <span id="checkout-amount">₹0.00</span>
+                        </button>
+                    </form>
+                    
+                    <!-- Order Summary Mini -->
+                    <div class="checkout-summary-pane">
+                        <h4>Order Details</h4>
+                        <div class="checkout-summary-items" id="checkout-summary-list">
+                            <!-- Items will be injected dynamically -->
+                        </div>
+                        <div class="checkout-summary-totals">
+                            <div class="summary-row">
+                                <span>Items Subtotal</span>
+                                <span id="checkout-subtotal">₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Shipping</span>
+                                <span>FREE</span>
+                            </div>
+                            <hr class="summary-divider">
+                            <div class="summary-row grand-total">
+                                <span>Total Amount</span>
+                                <span id="checkout-total-amount">₹0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Success Screen -->
+            <div id="checkout-step-success" class="checkout-success text-center hidden">
+                <div class="success-icon-container">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="success-icon">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h3 class="success-title">Order Placed Successfully!</h3>
+                <p class="success-description">Thank you for your purchase. Your spices are being freshly milled and packaged. We've sent a receipt to your email.</p>
+                <div class="order-details-card">
+                    <div class="detail-row">
+                        <span>Order ID:</span>
+                        <strong id="success-order-id">#MC-987452</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Estimated Delivery:</span>
+                        <strong id="success-delivery-date">In 3 - 5 Business Days</strong>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="success-done-btn">Back to Shop</button>
+            </div>
+            
+            <!-- Loading Indicator Overlay -->
+            <div id="checkout-loader" class="modal-loader-overlay hidden">
+                <div class="spinner"></div>
+                <p>Processing Secure Payment...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Newsletter Section -->
+    <section id="newsletter" class="newsletter-section">
+        <div class="container text-center newsletter-container">
+            <span class="section-tag">The Spice Club</span>
+            <h2 class="section-title text-white">Unlock Traditional Indian Recipes</h2>
+            <p class="newsletter-description">Subscribe to get monthly culinary recipes from master chefs, spice pairings, and 15% off your first order.</p>
+            <form id="newsletter-form" class="newsletter-form">
+                <input type="email" placeholder="Enter your email address" required aria-label="Email address">
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo footer-logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    </svg>
+                    <span>Bhavani Homemade Products</span>
+                </a>
+                <p class="footer-tagline font-serif">Aroma that tells a story. Taste that lives forever.</p>
+                <p class="footer-desc">Crafting premium, single-origin and custom-blended spices to elevate home cooking to fine dining.</p>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Shop Collection</h4>
+                <ul>
+                    <li><a href="#shop">Signature Blends</a></li>
+                    <li><a href="#shop">Single Origin Spices</a></li>
+                    <li><a href="#shop">Whole Masalas</a></li>
+                    <li><a href="#shop">Gift Hampers</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#story">Our Story</a></li>
+                    <li><a href="#story">Fair Trade Sourcing</a></li>
+                    <li><a href="#benefits">Quality Standard</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Spice Kitchen</h4>
+                <ul>
+                    <li><a href="#">Spice Storage Guide</a></li>
+                    <li><a href="#">Curry Blending Tips</a></li>
+                    <li><a href="#">Ayurvedic Benefits</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="container footer-bottom">
+            <p>&copy; 2026 Bhavani Homemade Products. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    </div> <!-- End storefront-app -->
+
+    <!-- Floating WhatsApp Share Button -->
+    <a href="https://api.whatsapp.com/send?text=Check%20out%20Bhavani%20Homemade%20Products%20for%20premium%20organic%20spices%20milled%20fresh!%20Visit%20our%20shop%20at%20http%3A%2F%2Fbhavani-spices-homemade.surge.sh" target="_blank" class="whatsapp-float-btn" aria-label="Share on WhatsApp">
+        <svg class="whatsapp-icon" viewBox="0 0 448 512" fill="currentColor">
+            <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L3 480l117.7-30.9c32.4 17.7 68.9 27 106.3 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+        </svg>
+        <span>Share Shop</span>
+    </a>
+
+    <!-- Order Tracker Drawer -->
+    <div class="cart-overlay" id="order-tracker-overlay"></div>
+    <div class="cart-drawer" id="order-tracker-drawer">
+        <div class="cart-header">
+            <h3>Order History & Tracker</h3>
+            <button class="cart-close-btn" id="order-tracker-close" aria-label="Close Order Tracker">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="cart-items-container" id="order-tracker-container" style="padding: 24px; overflow-y: auto;">
+            <!-- Order tracking list will be rendered by app.js -->
+            <div class="empty-cart-message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="empty-cart-icon" style="color: var(--color-primary);">
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                    <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                </svg>
+                <p>No orders placed yet.</p>
+                <a href="#shop" class="btn btn-secondary btn-sm" id="order-tracker-shop-btn">Browse Spices</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Drawer -->
+    <div class="cart-overlay" id="admin-dashboard-overlay"></div>
+    <div class="cart-drawer admin-panel-drawer" id="admin-dashboard-drawer">
+        <div class="cart-header" style="flex-direction: column; align-items: stretch; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">🛡️ Admin Control Panel</h3>
+                <button class="cart-close-btn" id="admin-dashboard-close" aria-label="Close Admin Dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" data-tab="orders">📦 Orders</button>
+                <button class="admin-tab-btn" data-tab="stock">📊 Stock</button>
+                <button class="admin-tab-btn" data-tab="customers">👥 Customers</button>
+            </div>
+        </div>
+        
+        <div class="cart-items-container" id="admin-dashboard-container" style="padding: 20px; overflow-y: auto;">
+            <!-- Orders Tab -->
+            <div class="admin-tab-content active" id="admin-tab-orders">
+                <div class="admin-section-stats" id="admin-orders-stats"></div>
+                <div id="admin-orders-list"></div>
+            </div>
+            <!-- Stock Tab -->
+            <div class="admin-tab-content" id="admin-tab-stock">
+                <div class="admin-section-stats" id="admin-stock-stats"></div>
+                
+                <!-- Add New Product Form Card -->
+                <div class="admin-add-product-card">
+                    <button type="button" class="admin-add-toggle-btn" id="admin-add-toggle-btn">
+                        <span>✨ Add New Product for Sale</span>
+                        <span id="admin-add-toggle-icon">➕</span>
+                    </button>
+                    
+                    <form id="admin-add-product-form" class="admin-add-product-form hidden">
+                        <div class="admin-form-group">
+                            <label for="add-prod-name">Product Name *</label>
+                            <input type="text" id="add-prod-name" required placeholder="e.g. Royal Shahi Jeera">
+                        </div>
+                        
+                        <div class="admin-form-row">
+                            <div class="admin-form-group">
+                                <label for="add-prod-category">Category *</label>
+                                <select id="add-prod-category" required>
+                                    <option value="blends">Signature Blend</option>
+                                    <option value="single" selected>Single Spice</option>
+                                </select>
+                            </div>
+                            <div class="admin-form-group">
+                                <label for="add-prod-price">Price (₹) *</label>
+                                <input type="number" id="add-prod-price" required min="1" step="5" placeholder="280">
+                            </div>
+                        </div>
+                        
+                        <div class="admin-form-row">
+                            <div class="admin-form-group">
+                                <label for="add-prod-badge">Badge / Tag</label>
+                                <input type="text" id="add-prod-badge" placeholder="e.g. Fresh Harvest, Premium">
+                            </div>
+                            <div class="admin-form-group">
+                                <label for="add-prod-status">Initial Stock</label>
+                                <select id="add-prod-status">
+                                    <option value="in-stock" selected>✅ In Stock</option>
+                                    <option value="low-stock">⚠️ Low Stock</option>
+                                    <option value="out-of-stock">❌ Out of Stock</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="admin-form-group">
+                            <label for="add-prod-desc">Description *</label>
+                            <textarea id="add-prod-desc" required rows="2" placeholder="Intensely aromatic whole cumin seeds hand-picked from..."></textarea>
+                        </div>
+                        
+                        <div class="admin-form-group">
+                            <label>Product Image</label>
+                            <div class="admin-image-input-container">
+                                <label class="admin-file-upload-box" for="add-prod-file">
+                                    <span>📷 Click to Upload Photo from Device</span>
+                                    <input type="file" id="add-prod-file" accept="image/*" class="admin-file-input">
+                                </label>
+                                <div class="admin-or-divider"><span>OR</span></div>
+                                <input type="url" id="add-prod-img-url" placeholder="Paste Image URL (https://...)">
+                                <div id="add-prod-img-preview" class="admin-img-preview hidden"></div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="admin-submit-btn">🚀 Save & Publish Product</button>
+                    </form>
+                </div>
+
+                <div id="admin-stock-list"></div>
+            </div>
+            <!-- Customers Tab -->
+            <div class="admin-tab-content" id="admin-tab-customers">
+                <div class="admin-section-stats" id="admin-customers-stats"></div>
+                <div id="admin-customers-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Help Desk Chatbot Widget -->
+    <div class="help-desk-widget" id="help-desk-widget">
+        <button class="help-desk-trigger-btn" id="help-desk-trigger" aria-label="Open Help Desk Chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chat-icon">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="chat-badge-pulse"></span>
+        </button>
+        
+        <div class="chat-window-container" id="chat-window">
+            <div class="chat-window-header">
+                <div class="chat-bot-identity">
+                    <div class="bot-avatar">🌿</div>
+                    <div class="bot-status-info">
+                        <span class="bot-name">Bhavani Bot</span>
+                        <span class="bot-status"><span class="status-dot"></span> Online</span>
+                    </div>
+                </div>
+                <button class="chat-close-btn" id="chat-window-close" aria-label="Close Chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon" style="width: 16px; height: 16px;">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="chat-messages-area" id="chat-messages">
+                <!-- Message history -->
+                <div class="chat-msg bot animate-[fadeInDown_0.2s_ease-out]">
+                    <p>Namaste! 🙏 Welcome to Bhavani Homemade Products Enquiry Desk. How can I help you today?</p>
+                </div>
+                <div class="chat-quick-replies" id="chat-quick-replies">
+                    <button class="quick-reply-btn" data-query="spices-mill">Milling Quality</button>
+                    <button class="quick-reply-btn" data-query="shipping">Shipping & Location</button>
+                    <button class="quick-reply-btn" data-query="track-order">Track My Orders</button>
+                    <button class="quick-reply-btn" data-query="refund">Refund Policy</button>
+                </div>
+            </div>
+            
+            <form id="chat-input-form" class="chat-input-bar">
+                <input type="text" id="chat-user-input" placeholder="Type your enquiry..." autocomplete="off">
+                <button type="submit" class="chat-send-btn" id="chat-send-btn" aria-label="Send Message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="send-icon" style="width: 18px; height: 18px;">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase Cloud Database -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-helpers.js"></script>
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

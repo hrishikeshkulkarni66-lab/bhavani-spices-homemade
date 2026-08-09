@@ -1,0 +1,20 @@
+{
+  "name": "masala-craft",
+  "version": "1.0.0",
+  "description": "Premium E-commerce website for Masala Craft",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx -y serve ."
+  },
+  "keywords": [
+    "spice",
+    "masala",
+    "ecommerce"
+  ],
+  "author": "Masala Craft",
+  "license": "ISC",
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "motion": "^13.0.0"
+  }
+}
