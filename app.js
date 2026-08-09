@@ -680,16 +680,31 @@ function saveCart() {
     localStorage.setItem(getCartKey(), JSON.stringify(state.cart));
 }
 
+function closeAllDrawers() {
+    if (dom.adminDrawer) dom.adminDrawer.classList.remove('active');
+    if (dom.adminOverlay) dom.adminOverlay.classList.remove('active');
+    if (dom.profileDrawer) dom.profileDrawer.classList.remove('active');
+    if (dom.profileOverlay) dom.profileOverlay.classList.remove('active');
+    if (dom.orderTrackerDrawer) dom.orderTrackerDrawer.classList.remove('active');
+    if (dom.orderTrackerOverlay) dom.orderTrackerOverlay.classList.remove('active');
+    if (dom.cartDrawer) dom.cartDrawer.classList.remove('active');
+    if (dom.cartOverlay) dom.cartOverlay.classList.remove('active');
+    if (dom.sidebarDrawer) dom.sidebarDrawer.classList.remove('active');
+    if (dom.sidebarOverlay) dom.sidebarOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
 function openCartDrawer() {
+    closeAllDrawers();
     dom.cartDrawer.classList.add('active');
     dom.cartOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Prevent scroll on page
+    document.body.style.overflow = 'hidden';
 }
 
 window.closeCartDrawer = () => {
     dom.cartDrawer.classList.remove('active');
     dom.cartOverlay.classList.remove('active');
-    document.body.style.overflow = ''; // Re-enable scroll
+    document.body.style.overflow = '';
 };
 
 /* ==========================================================================
@@ -990,15 +1005,31 @@ async function handleLoginSubmit(e) {
             submitBtn.innerHTML = `<div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>`;
             
             // Simulate login validation delay (1.2 seconds)
-            setTimeout(() => {
+            setTimeout(async () => {
+                closeAllDrawers();
                 localStorage.setItem('bhavani_user_logged_in', 'true');
                 localStorage.setItem('bhavani_user_email', email);
+                
+                // Clear old profile container HTML to avoid showing previous user profile
+                if (dom.profileContainer) dom.profileContainer.innerHTML = '';
+
+                // Pre-fetch user name from Supabase to sync profile cache
+                try {
+                    const users = await db.getAllUsers();
+                    const matched = users.find(u => (u.email || '').trim().toLowerCase() === email);
+                    if (matched && matched.name) {
+                        localStorage.setItem('bhavani_user_name_' + email, matched.name);
+                    }
+                } catch (err) {
+                    console.warn(err);
+                }
+
                 showToast("Signed in successfully! Welcome to Bhavani Homemade Products.", "success");
                 
                 // Load this user's cart
                 loadUserCart();
                 
-                // Show admin link immediately upon login if admin
+                // Sync admin link visibility
                 syncAdminLinkVisibility();
                 
                 // Transition animations
@@ -1035,9 +1066,11 @@ function showValidationError(message) {
 }
 
 function handleGuestLogin() {
+    closeAllDrawers();
     localStorage.setItem('bhavani_user_logged_in', 'guest');
     localStorage.removeItem('bhavani_user_email');
     syncAdminLinkVisibility();
+    if (dom.profileContainer) dom.profileContainer.innerHTML = '';
     showToast("Welcome! Exploring catalog as Guest. Sign in required to place orders.", "success");
     
     // Load guest-specific cart
@@ -1066,11 +1099,16 @@ function togglePasswordVisibility() {
 }
 
 function handleSignOut(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
     
-    // Clear in-memory cart (already saved to user-specific key)
+    // Close all open drawers and sidebars immediately
+    closeAllDrawers();
+
+    // Clear in-memory cart and profile HTML
     state.cart = [];
     updateCartUI();
+    if (dom.profileContainer) dom.profileContainer.innerHTML = '';
+    if (dom.adminContainer) dom.adminContainer.innerHTML = '';
     
     localStorage.removeItem('bhavani_user_logged_in');
     localStorage.removeItem('bhavani_user_email');
@@ -1423,6 +1461,7 @@ function handleLoginModeToggle(e) {
    ========================================================================== */
 
 function openOrderTrackerDrawer() {
+    closeAllDrawers();
     dom.orderTrackerDrawer.classList.add('active');
     dom.orderTrackerOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -1732,12 +1771,11 @@ function syncAdminLinkVisibility() {
 function openAdminDashboardDrawer() {
     if (!checkIsAdmin()) {
         syncAdminLinkVisibility();
-        dom.adminDrawer.classList.remove('active');
-        dom.adminOverlay.classList.remove('active');
-        document.body.style.overflow = '';
+        closeAllDrawers();
         showToast("Access Denied: Only Admin (hrishikeshkulkarni66@gmail.com) can access the Admin Panel.", "error");
         return;
     }
+    closeAllDrawers();
     dom.adminDrawer.classList.add('active');
     dom.adminOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -2202,6 +2240,7 @@ async function renderAdminCustomers() {
    ========================================================================== */
 
 function openProfileDrawer() {
+    closeAllDrawers();
     dom.profileDrawer.classList.add('active');
     dom.profileOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -2217,21 +2256,39 @@ function closeProfileDrawer() {
 async function renderProfileDetails() {
     if (!dom.profileContainer) return;
     
-    const userEmail = localStorage.getItem('bhavani_user_email') || 'Guest User';
+    const userEmail = (localStorage.getItem('bhavani_user_email') || '').trim().toLowerCase();
     const isLoggedIn = localStorage.getItem('bhavani_user_logged_in');
     
+    if (!userEmail || isLoggedIn !== 'true') {
+        dom.profileContainer.innerHTML = `
+            <div class="empty-cart-message" style="padding: 40px 20px; text-align: center;">
+                <p style="color: var(--color-text-muted); font-size: 1rem; margin-bottom: 16px;">
+                    Please sign in to view and manage your personal profile details.
+                </p>
+                <button class="btn btn-secondary btn-sm" onclick="closeProfileDrawer(); handleSignOut(event);">Sign In / Register</button>
+            </div>
+        `;
+        return;
+    }
+
     // Fetch profile from Supabase or localStorage
     let userName = localStorage.getItem('bhavani_user_name_' + userEmail);
     if (!userName) {
-        const users = await db.getAllUsers();
-        const matched = users.find(u => u.email === userEmail);
-        if (matched && matched.name) {
-            userName = matched.name;
-        } else if (userEmail === ADMIN_EMAIL) {
-            userName = "Bhavani Admin";
-        } else if (userEmail === 'Guest User') {
-            userName = "Guest Shopper";
-        } else {
+        try {
+            const users = await db.getAllUsers();
+            const matched = users.find(u => (u.email || '').trim().toLowerCase() === userEmail);
+            if (matched && matched.name) {
+                userName = matched.name;
+            } else if (userEmail === ADMIN_EMAIL) {
+                userName = "Bhavani Admin";
+            } else {
+                userName = userEmail.split('@')[0];
+            }
+            if (userName) {
+                localStorage.setItem('bhavani_user_name_' + userEmail, userName);
+            }
+        } catch (err) {
+            console.warn(err);
             userName = userEmail.split('@')[0];
         }
     }
