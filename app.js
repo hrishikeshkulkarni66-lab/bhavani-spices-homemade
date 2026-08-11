@@ -988,53 +988,70 @@ async function handleLoginSubmit(e) {
         }
         
         // Store user in Supabase cloud database
+        let registeredUser = null;
         try {
-            await db.signUp(name, email, password);
+            const res = await db.signUp(name, email, password);
+            registeredUser = Array.isArray(res) ? res[0] : res;
         } catch (err) {
-            showValidationError(err.message);
+            showValidationError(err.message || "Failed to create account.");
             return;
         }
         
-        showToast("Account created successfully! Please sign in.", "success");
+        showToast("Account created successfully! Logging you in...", "success");
         
-        // Auto toggle back to Sign In
-        handleLoginModeToggle(e); // will toggle state back to false
-        dom.loginEmail.value = email; // pre-fill registered email
-        dom.loginPassword.value = '';
-        dom.loginName.value = '';
-        dom.loginConfirmPassword.value = '';
+        // Auto-login newly registered user
+        closeAllDrawers();
+        localStorage.setItem('bhavani_user_logged_in', 'true');
+        localStorage.setItem('bhavani_user_email', email);
+        if (registeredUser && registeredUser.name) {
+            localStorage.setItem('bhavani_user_name_' + email, registeredUser.name);
+        }
+        
+        if (dom.profileContainer) dom.profileContainer.innerHTML = '';
+        loadUserCart();
+        syncAdminLinkVisibility();
+
+        dom.loginGateway.classList.add('fade-out');
+        dom.storefrontApp.classList.remove('hidden');
+        setTimeout(() => {
+            dom.loginGateway.style.display = 'none';
+            dom.storefrontApp.classList.add('visible');
+            dom.loginForm.reset();
+        }, 500);
     } else {
         // Sign In Flow
         const email = dom.loginEmail.value.trim().toLowerCase();
         const password = dom.loginPassword.value;
+
+        if (!email || !password) {
+            showValidationError("Please enter your email/username and password.");
+            return;
+        }
         
         // Verify credentials against Supabase database
-        let isValidUser = false;
+        let user = null;
         try {
-            const user = await db.signIn(email, password);
-            isValidUser = !!user;
+            user = await db.signIn(email, password);
         } catch (err) {
             console.error('Sign in error:', err);
+            showValidationError(err.message || "Invalid email or password.");
+            return;
         }
             
-        if (isValidUser) {
+        if (user) {
             const submitBtn = dom.loginForm.querySelector('.login-submit-btn');
             const originalText = submitBtn.innerHTML;
             
-            // Show spinner inside button
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>`;
             
-            // Simulate login validation delay (1.2 seconds)
             setTimeout(async () => {
                 closeAllDrawers();
                 localStorage.setItem('bhavani_user_logged_in', 'true');
                 localStorage.setItem('bhavani_user_email', email);
                 
-                // Clear old profile container HTML to avoid showing previous user profile
                 if (dom.profileContainer) dom.profileContainer.innerHTML = '';
 
-                // Pre-fetch user name from Supabase to sync profile cache
                 try {
                     const users = await db.getAllUsers();
                     const matched = users.find(u => (u.email || '').trim().toLowerCase() === email);
@@ -1047,29 +1064,24 @@ async function handleLoginSubmit(e) {
 
                 showToast("Signed in successfully! Welcome to Bhavani Homemade Products.", "success");
                 
-                // Load this user's cart
                 loadUserCart();
-                
-                // Sync admin link visibility
                 syncAdminLinkVisibility();
                 
-                // Transition animations
                 dom.loginGateway.classList.add('fade-out');
                 dom.storefrontApp.classList.remove('hidden');
-                                setTimeout(() => {
+                setTimeout(() => {
                     dom.loginGateway.style.display = 'none';
                     dom.storefrontApp.classList.add('visible');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                     dom.loginForm.reset();
 
-                    // Check for redirect flag to directly access checkout payment modal
                     if (localStorage.getItem('bhavani_checkout_redirect') === 'true') {
                         localStorage.removeItem('bhavani_checkout_redirect');
                         openCheckoutModal();
                     }
                 }, 500);
-            }, 1200);
+            }, 500);
         } else {
             showValidationError("Invalid email or password.");
         }

@@ -88,12 +88,21 @@ const db = {
             let isMatch = false;
             const storedPass = user.password || '';
 
-            if (storedPass.startsWith('$2a$') || storedPass.startsWith('$2b$')) {
-                if (typeof dcodeIO !== 'undefined' && dcodeIO.bcrypt) {
-                    isMatch = dcodeIO.bcrypt.compareSync(password, storedPass);
-                } else if (typeof bcrypt !== 'undefined' && bcrypt.compareSync) {
-                    isMatch = bcrypt.compareSync(password, storedPass);
+            if (typeof window !== 'undefined' && (window.bcrypt || (window.dcodeIO && window.dcodeIO.bcrypt))) {
+                const b = window.bcrypt || window.dcodeIO.bcrypt;
+                if (storedPass.startsWith('$2a$') || storedPass.startsWith('$2b$')) {
+                    try {
+                        isMatch = b.compareSync(password, storedPass);
+                    } catch (e) {
+                        isMatch = (storedPass === password);
+                    }
+                } else {
+                    isMatch = (storedPass === password);
                 }
+            } else if (typeof bcrypt !== 'undefined' && bcrypt.compareSync) {
+                isMatch = storedPass.startsWith('$2a$') || storedPass.startsWith('$2b$') 
+                    ? bcrypt.compareSync(password, storedPass) 
+                    : (storedPass === password);
             } else {
                 isMatch = (storedPass === password);
             }
