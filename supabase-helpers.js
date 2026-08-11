@@ -34,21 +34,31 @@ const db = {
     // ---- PROFILES & AUTHENTICATION ----
 
     async signUp(name, email, password) {
+        const emailLower = (email || '').trim().toLowerCase();
         try {
             const data = await apiRequest('/auth/register', {
                 method: 'POST',
-                body: JSON.stringify({ name, email, password })
+                body: JSON.stringify({ name, email: emailLower, password })
             });
             if (data.token) localStorage.setItem('bhavani_auth_token', data.token);
             return [data.user];
         } catch (err) {
-            // Direct Supabase fallback if API server is not reached
+            let passToStore = password;
+            if (typeof dcodeIO !== 'undefined' && dcodeIO.bcrypt) {
+                passToStore = dcodeIO.bcrypt.hashSync(password, 10);
+            } else if (typeof bcrypt !== 'undefined' && bcrypt.hashSync) {
+                passToStore = bcrypt.hashSync(password, 10);
+            }
+
+            const isMasterAdmin = emailLower === 'hrishikeshkulkarni66@gmail.com';
+            const role = isMasterAdmin ? 'ADMIN' : 'CUSTOMER';
+
             const { data, error } = await supabaseClient
                 .from('profiles')
-                .insert([{ name, email, password }])
+                .insert([{ name, email: emailLower, password: passToStore, role }])
                 .select();
             if (error) {
-                if (error.code === '23505') throw new Error('An account with this email already exists.');
+                if (error.code === '23505') throw new Error('An account with this email address already exists.');
                 throw new Error(error.message);
             }
             return data;
@@ -56,22 +66,48 @@ const db = {
     },
 
     async signIn(email, password) {
+        const emailLower = (email || '').trim().toLowerCase();
         try {
             const data = await apiRequest('/auth/login', {
                 method: 'POST',
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email: emailLower, password })
             });
             if (data.token) localStorage.setItem('bhavani_auth_token', data.token);
             return data.user;
         } catch (err) {
-            const { data, error } = await supabaseClient
+            const { data: user, error } = await supabaseClient
                 .from('profiles')
                 .select('*')
-                .eq('email', email)
-                .eq('password', password)
+                .ilike('email', emailLower)
                 .maybeSingle();
-            if (error) throw new Error(error.message);
-            return data;
+
+            if (error || !user) {
+                throw new Error('Invalid email or password.');
+            }
+
+            let isMatch = false;
+            const storedPass = user.password || '';
+
+            if (storedPass.startsWith('$2a$') || storedPass.startsWith('$2b$')) {
+                if (typeof dcodeIO !== 'undefined' && dcodeIO.bcrypt) {
+                    isMatch = dcodeIO.bcrypt.compareSync(password, storedPass);
+                } else if (typeof bcrypt !== 'undefined' && bcrypt.compareSync) {
+                    isMatch = bcrypt.compareSync(password, storedPass);
+                }
+            } else {
+                isMatch = (storedPass === password);
+            }
+
+            if (!isMatch) {
+                throw new Error('Invalid email or password.');
+            }
+
+            return {
+                id: user.id || user.email,
+                name: user.name,
+                email: user.email,
+                role: (emailLower === 'hrishikeshkulkarni66@gmail.com' ? 'ADMIN' : (user.role || 'CUSTOMER'))
+            };
         }
     },
 
