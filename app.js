@@ -184,38 +184,43 @@ const dom = {
    INITIALIZATION & NAVIGATION EFFECTS
    ========================================================================== */
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await applyCustomPrices();
-    
-    // Check if already logged in
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Attach all event listeners immediately
+    setupEventListeners();
+
+    // 2. Check if already logged in / guest state
     initLoginGateway();
 
-    // Load the correct user's cart on startup
-    loadUserCart();
-
-    // Initialize Theme preference
+    // 3. Initialize Theme preference
     initThemePreference();
 
-    // Render initial catalog
+    // 4. Render initial catalog
     renderProducts();
-    
-    // Sync cart badge and container
+
+    // 5. Load the correct user's cart on startup
+    loadUserCart();
+
+    // 6. Sync cart badge and container UI
     updateCartUI();
 
-    // Initialize Testimonials Stacked Carousel
+    // 7. Initialize Testimonials Stacked Carousel
     initTestimonialCarousel();
+
+    // 8. Fetch product price updates asynchronously without blocking UI interactions
+    applyCustomPrices().then(() => {
+        renderProducts();
+    }).catch(err => {
+        console.warn('Non-blocking catalog price sync note:', err);
+    });
     
     // Header scroll background toggle
     window.addEventListener('scroll', () => {
-        // Toggle header scroll background only if storefront is visible
-        if (window.scrollY > 50 && !dom.storefrontApp.classList.contains('hidden')) {
+        if (window.scrollY > 50 && dom.storefrontApp && !dom.storefrontApp.classList.contains('hidden')) {
             dom.header.classList.add('scrolled');
-        } else {
+        } else if (dom.header) {
             dom.header.classList.remove('scrolled');
         }
     });
-
-    setupEventListeners();
 });
 
 /* ==========================================================================
