@@ -85,16 +85,41 @@ const db = {
         }
     },
 
-    async updateUserProfile(email, newName) {
+    async getUserProfile() {
         try {
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .update({ name: newName })
-                .eq('email', email)
-                .select();
-            return data;
+            return await apiRequest('/auth/profile');
         } catch (err) {
-            console.warn(err);
+            return { address: {}, payment: {} };
+        }
+    },
+
+    async updateUserProfile(profileData) {
+        try {
+            return await apiRequest('/auth/profile', {
+                method: 'PUT',
+                body: JSON.stringify(profileData)
+            });
+        } catch (err) {
+            console.warn('updateUserProfile error:', err);
+        }
+    },
+
+    async getCart() {
+        try {
+            return await apiRequest('/cart');
+        } catch (err) {
+            return [];
+        }
+    },
+
+    async saveCart(items) {
+        try {
+            return await apiRequest('/cart', {
+                method: 'POST',
+                body: JSON.stringify({ items })
+            });
+        } catch (err) {
+            console.warn('saveCart error:', err);
         }
     },
 

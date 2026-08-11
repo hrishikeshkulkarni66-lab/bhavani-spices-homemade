@@ -67,9 +67,13 @@ function getCartKey() {
     return 'bhavani_cart_anonymous';
 }
 
-// Load the correct user's cart from localStorage
-function loadUserCart() {
-    state.cart = JSON.parse(localStorage.getItem(getCartKey()) || '[]');
+// Load the correct user's cart from server API
+async function loadUserCart() {
+    try {
+        state.cart = await db.getCart() || [];
+    } catch (err) {
+        state.cart = JSON.parse(localStorage.getItem(getCartKey()) || '[]');
+    }
     updateCartUI();
 }
 
@@ -676,8 +680,13 @@ window.removeCartItem = (productId) => {
     showToast("Item removed from basket.", "info");
 };
 
-function saveCart() {
+async function saveCart() {
     localStorage.setItem(getCartKey(), JSON.stringify(state.cart));
+    try {
+        await db.saveCart(state.cart);
+    } catch (err) {
+        console.warn('Server cart sync note:', err);
+    }
 }
 
 function closeAllDrawers() {
@@ -755,17 +764,25 @@ function openCheckoutModal() {
         dom.checkoutSummaryList.appendChild(itemRow);
     });
 
-    // Pre-fill full name, email, address, and payment of currently logged-in user
+    // Pre-fill full name, email, address, and payment from server profile
     const userEmail = localStorage.getItem('bhavani_user_email');
     if (userEmail) {
-        const savedName = localStorage.getItem('bhavani_user_name_' + userEmail);
-        const savedAddress = JSON.parse(localStorage.getItem('bhavani_address_' + userEmail) || '{}');
-        const savedPayment = JSON.parse(localStorage.getItem('bhavani_payment_' + userEmail) || '{}');
+        let savedName = '';
+        let savedAddress = {};
+        let savedPayment = {};
 
-        const users = JSON.parse(localStorage.getItem('bhavani_mock_users') || '[]');
-        const matched = users.find(u => u.email === userEmail);
-        
-        let nameToFill = savedName || (matched ? matched.name : (userEmail === ADMIN_EMAIL ? "Bhavani Admin" : userEmail.split('@')[0]));
+        try {
+            const serverProf = await db.getUserProfile();
+            if (serverProf) {
+                savedName = serverProf.name || '';
+                savedAddress = serverProf.address || {};
+                savedPayment = serverProf.payment || {};
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+
+        let nameToFill = savedName || (userEmail === ADMIN_EMAIL ? "Bhavani Admin" : userEmail.split('@')[0]);
         
         const fullNameInput = document.getElementById('full-name');
         const emailInput = document.getElementById('email-address');
@@ -2275,30 +2292,21 @@ async function renderProfileDetails() {
         return;
     }
 
-    // Fetch profile from Supabase or localStorage
-    let userName = localStorage.getItem('bhavani_user_name_' + userEmail);
-    if (!userName) {
-        try {
-            const users = await db.getAllUsers();
-            const matched = users.find(u => (u.email || '').trim().toLowerCase() === userEmail);
-            if (matched && matched.name) {
-                userName = matched.name;
-            } else if (userEmail === ADMIN_EMAIL) {
-                userName = "Bhavani Admin";
-            } else {
-                userName = userEmail.split('@')[0];
-            }
-            if (userName) {
-                localStorage.setItem('bhavani_user_name_' + userEmail, userName);
-            }
-        } catch (err) {
-            console.warn(err);
-            userName = userEmail.split('@')[0];
+    // Fetch user profile securely from Server API
+    let userName = userEmail.split('@')[0];
+    let savedAddress = {};
+    let savedPayment = {};
+
+    try {
+        const serverProf = await db.getUserProfile();
+        if (serverProf) {
+            userName = serverProf.name || userName;
+            savedAddress = serverProf.address || {};
+            savedPayment = serverProf.payment || {};
         }
+    } catch (err) {
+        console.warn('Profile fetch note:', err);
     }
-    
-    const savedAddress = JSON.parse(localStorage.getItem('bhavani_address_' + userEmail) || '{}');
-    const savedPayment = JSON.parse(localStorage.getItem('bhavani_payment_' + userEmail) || '{}');
 
     const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
     const isAdmin = checkIsAdmin();
@@ -2354,46 +2362,53 @@ async function renderProfileDetails() {
                 </select>
             </div>
             <div class="form-group">
-                <label for="prof-pay-detail">UPI VPA ID or Card Number</label>
-                <input type="text" id="prof-pay-detail" value="${savedPayment.detail || ''}" placeholder="e.g. name@upi or 4111222233334444">
+                <label for="prof-pay-detail">UPI VPA ID or Card Alias</label>
+                <input type="text" id="prof-pay-detail" value="${savedPayment.detail || ''}" placeholder="e.g. name@upi">
             </div>
             <button type="submit" class="btn btn-secondary btn-sm" style="align-self: flex-start;">Save Payment Details</button>
         </form>
     `;
 
-    // Attach form submission handlers
+    // Attach form submission handlers to post directly to Server API
     document.getElementById('profile-name-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const newName = document.getElementById('prof-display-name').value.trim();
         if (!newName) return;
-        localStorage.setItem('bhavani_user_name_' + userEmail, newName);
         try {
-            await db.updateUserProfile(userEmail, newName);
+            await db.updateUserProfile({ name: newName });
+            showToast("Profile name saved to server!", "success");
+            renderProfileDetails();
         } catch (err) {
-            console.warn(err);
+            showToast("Failed to update profile name.", "error");
         }
-        showToast("Profile name updated!", "success");
-        renderProfileDetails();
     });
 
-    document.getElementById('profile-address-form').addEventListener('submit', (e) => {
+    document.getElementById('profile-address-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const addressData = {
             street: document.getElementById('prof-street').value.trim(),
             city: document.getElementById('prof-city').value.trim(),
             postal: document.getElementById('prof-postal').value.trim()
         };
-        localStorage.setItem('bhavani_address_' + userEmail, JSON.stringify(addressData));
-        showToast("Shipping address saved!", "success");
+        try {
+            await db.updateUserProfile({ address: addressData });
+            showToast("Shipping address saved to server!", "success");
+        } catch (err) {
+            showToast("Failed to save shipping address.", "error");
+        }
     });
 
-    document.getElementById('profile-payment-form').addEventListener('submit', (e) => {
+    document.getElementById('profile-payment-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const paymentData = {
             method: document.getElementById('prof-pay-method').value,
             detail: document.getElementById('prof-pay-detail').value.trim()
         };
-        localStorage.setItem('bhavani_payment_' + userEmail, JSON.stringify(paymentData));
-        showToast("Payment preferences saved!", "success");
+        try {
+            await db.updateUserProfile({ payment: paymentData });
+            showToast("Payment preferences saved to server!", "success");
+        } catch (err) {
+            showToast("Failed to save payment preferences.", "error");
+        }
     });
 }
