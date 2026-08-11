@@ -772,14 +772,14 @@ function openCheckoutModal() {
         const addressInput = document.getElementById('shipping-address');
         const cityInput = document.getElementById('city');
         const postalInput = document.getElementById('postal-code');
-        const cardInput = document.getElementById('payment-card');
+        const payMethodSelect = document.getElementById('payment-method');
 
         if (fullNameInput) fullNameInput.value = nameToFill;
         if (emailInput) emailInput.value = userEmail;
         if (addressInput && savedAddress.street) addressInput.value = savedAddress.street;
         if (cityInput && savedAddress.city) cityInput.value = savedAddress.city;
         if (postalInput && savedAddress.postal) postalInput.value = savedAddress.postal;
-        if (cardInput && savedPayment.detail) cardInput.value = savedPayment.detail;
+        if (payMethodSelect && savedPayment.method) payMethodSelect.value = savedPayment.method.toUpperCase();
     }
 
     // Make modal active
@@ -829,31 +829,35 @@ async function handleCheckoutSubmit(e) {
         dom.checkoutStepForm.classList.add('hidden');
         dom.checkoutStepSuccess.classList.remove('hidden');
 
-        // Save order details to history
+        // Save order details to backend API & history
         const orderItems = state.cart.map(item => ({
+            id: item.id,
             name: item.name,
             quantity: item.quantity,
             price: item.price
         }));
-        const orderTotal = state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        const orderDateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         
-        const newOrder = {
-            id: randomOrderId,
-            date: orderDateStr,
-            items: orderItems,
-            total: orderTotal,
-            user: localStorage.getItem('bhavani_user_email') || 'admin',
+        const payMethod = document.getElementById('payment-method') ? document.getElementById('payment-method').value : 'UPI';
+        
+        const newOrderPayload = {
+            user: localStorage.getItem('bhavani_user_email') || 'customer',
             customerName: document.getElementById('full-name').value,
+            customerEmail: document.getElementById('email-address').value,
             customerAddress: document.getElementById('shipping-address').value,
             customerCity: document.getElementById('city').value,
             customerPostal: document.getElementById('postal-code').value,
-            timestamp: Date.now()
+            paymentMethod: payMethod,
+            items: orderItems
         };
 
-        // Save order to Supabase cloud database
+        let serverOrderId = randomOrderId;
+
         try {
-            await db.placeOrder(newOrder);
+            const result = await db.placeOrder(newOrderPayload);
+            if (result && result.length > 0 && result[0].id) {
+                serverOrderId = result[0].id;
+                dom.successOrderId.textContent = serverOrderId;
+            }
         } catch (err) {
             console.error('Order save error:', err);
         }

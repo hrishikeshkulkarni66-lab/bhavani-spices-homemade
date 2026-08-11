@@ -15,6 +15,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- JSON-LD Structured Data Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Bhavani Homemade Products",
+      "url": "https://bhavani-spices-homemade.surge.sh",
+      "logo": "https://bhavani-spices-homemade.surge.sh/assets/hero_spices.jpg",
+      "description": "Artisanal, single-origin and handcrafted Indian ground spices.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Mumbai",
+        "addressRegion": "Maharashtra",
+        "addressCountry": "IN"
+      }
+    }
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -458,10 +475,12 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="payment-card">Card Number</label>
-                            <div class="input-icon-wrapper">
-                                <input type="text" id="payment-card" required placeholder="4111 2222 3333 4444" pattern="\d{16}" title="16-digit credit card number">
-                            </div>
+                            <label for="payment-method">Payment Method</label>
+                            <select id="payment-method" class="checkout-select" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff;">
+                                <option value="UPI">📱 UPI (GPay / PhonePe / Paytm)</option>
+                                <option value="CARD">💳 NetBanking / Credit & Debit Card</option>
+                                <option value="COD">💵 Cash on Delivery (COD)</option>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block" id="place-order-btn">
                             Place Order - <span id="checkout-amount">₹0.00</span>
