@@ -1663,8 +1663,10 @@ img {
 }
 
 .login-wrapper.fade-out {
-    opacity: 0;
-    visibility: hidden;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    display: none !important;
 }
 
 .login-bg-overlay {

@@ -946,11 +946,9 @@ function initLoginGateway() {
 
     if (isLoggedIn === 'true' || isLoggedIn === 'guest') {
         dom.loginGateway.classList.add('fade-out');
+        dom.loginGateway.style.display = 'none';
         dom.storefrontApp.classList.remove('hidden');
-        setTimeout(() => {
-            dom.loginGateway.style.display = 'none';
-            dom.storefrontApp.classList.add('visible');
-        }, 500);
+        dom.storefrontApp.classList.add('visible');
     } else {
         dom.loginGateway.style.display = 'flex';
         dom.loginGateway.classList.remove('fade-out');
@@ -1017,12 +1015,10 @@ async function handleLoginSubmit(e) {
         syncAdminLinkVisibility();
 
         dom.loginGateway.classList.add('fade-out');
+        dom.loginGateway.style.display = 'none';
         dom.storefrontApp.classList.remove('hidden');
-        setTimeout(() => {
-            dom.loginGateway.style.display = 'none';
-            dom.storefrontApp.classList.add('visible');
-            dom.loginForm.reset();
-        }, 500);
+        dom.storefrontApp.classList.add('visible');
+        dom.loginForm.reset();
     } else {
         // Sign In Flow
         const email = dom.loginEmail.value.trim().toLowerCase();
@@ -1065,20 +1061,19 @@ async function handleLoginSubmit(e) {
             syncAdminLinkVisibility();
             
             dom.loginGateway.classList.add('fade-out');
+            dom.loginGateway.style.display = 'none';
             dom.storefrontApp.classList.remove('hidden');
-            
-            setTimeout(() => {
-                dom.loginGateway.style.display = 'none';
-                dom.storefrontApp.classList.add('visible');
+            dom.storefrontApp.classList.add('visible');
+            if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                dom.loginForm.reset();
+            }
+            dom.loginForm.reset();
 
-                if (localStorage.getItem('bhavani_checkout_redirect') === 'true') {
-                    localStorage.removeItem('bhavani_checkout_redirect');
-                    openCheckoutModal();
-                }
-            }, 300);
+            if (localStorage.getItem('bhavani_checkout_redirect') === 'true') {
+                localStorage.removeItem('bhavani_checkout_redirect');
+                openCheckoutModal();
+            }
         } else {
             showValidationError("Invalid email or password.");
         }
@@ -1107,12 +1102,9 @@ function handleGuestLogin() {
     loadUserCart();
     
     dom.loginGateway.classList.add('fade-out');
+    dom.loginGateway.style.display = 'none';
     dom.storefrontApp.classList.remove('hidden');
-    
-    setTimeout(() => {
-        dom.loginGateway.style.display = 'none';
-        dom.storefrontApp.classList.add('visible');
-    }, 500);
+    dom.storefrontApp.classList.add('visible');
 }
 
 function togglePasswordVisibility() {
