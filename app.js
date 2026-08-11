@@ -1050,43 +1050,35 @@ async function handleLoginSubmit(e) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>`;
             
-            setTimeout(async () => {
-                closeAllDrawers();
-                localStorage.setItem('bhavani_user_logged_in', 'true');
-                localStorage.setItem('bhavani_user_email', email);
-                
-                if (dom.profileContainer) dom.profileContainer.innerHTML = '';
+            closeAllDrawers();
+            localStorage.setItem('bhavani_user_logged_in', 'true');
+            localStorage.setItem('bhavani_user_email', email);
+            if (user.name) {
+                localStorage.setItem('bhavani_user_name_' + email, user.name);
+            }
+            
+            if (dom.profileContainer) dom.profileContainer.innerHTML = '';
 
-                try {
-                    const users = await db.getAllUsers();
-                    const matched = users.find(u => (u.email || '').trim().toLowerCase() === email);
-                    if (matched && matched.name) {
-                        localStorage.setItem('bhavani_user_name_' + email, matched.name);
-                    }
-                } catch (err) {
-                    console.warn(err);
+            showToast("Signed in successfully! Welcome to Bhavani Homemade Products.", "success");
+            
+            loadUserCart();
+            syncAdminLinkVisibility();
+            
+            dom.loginGateway.classList.add('fade-out');
+            dom.storefrontApp.classList.remove('hidden');
+            
+            setTimeout(() => {
+                dom.loginGateway.style.display = 'none';
+                dom.storefrontApp.classList.add('visible');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                dom.loginForm.reset();
+
+                if (localStorage.getItem('bhavani_checkout_redirect') === 'true') {
+                    localStorage.removeItem('bhavani_checkout_redirect');
+                    openCheckoutModal();
                 }
-
-                showToast("Signed in successfully! Welcome to Bhavani Homemade Products.", "success");
-                
-                loadUserCart();
-                syncAdminLinkVisibility();
-                
-                dom.loginGateway.classList.add('fade-out');
-                dom.storefrontApp.classList.remove('hidden');
-                setTimeout(() => {
-                    dom.loginGateway.style.display = 'none';
-                    dom.storefrontApp.classList.add('visible');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                    dom.loginForm.reset();
-
-                    if (localStorage.getItem('bhavani_checkout_redirect') === 'true') {
-                        localStorage.removeItem('bhavani_checkout_redirect');
-                        openCheckoutModal();
-                    }
-                }, 500);
-            }, 500);
+            }, 300);
         } else {
             showValidationError("Invalid email or password.");
         }
