@@ -725,7 +725,7 @@ window.closeCartDrawer = () => {
    CHECKOUT PROCESS FUNCTIONS
    ========================================================================== */
 
-function openCheckoutModal() {
+async function openCheckoutModal() {
     // Check if user is logged in as guest
     const userSession = localStorage.getItem('bhavani_user_logged_in');
     if (userSession === 'guest') {
