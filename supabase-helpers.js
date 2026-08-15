@@ -63,14 +63,16 @@ const db = {
             }
 
             let insertedData = null;
-            try {
-                const { data, error } = await supabaseClient
-                    .from('profiles')
-                    .insert([{ name, email: emailLower, password: passToStore, role }])
-                    .select();
-                if (!error && data) insertedData = data;
-            } catch (e) {
-                console.warn('Supabase insert fallback:', e);
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('profiles')
+                        .insert([{ name, email: emailLower, password: passToStore, role }])
+                        .select();
+                    if (!error && data) insertedData = data;
+                } catch (e) {
+                    console.warn('Supabase insert fallback:', e);
+                }
             }
 
             return insertedData || [{ name, email: emailLower, role }];
@@ -106,18 +108,20 @@ const db = {
 
         // 3. Try Supabase Cloud Database lookup
         let dbUser = null;
-        try {
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .ilike('email', emailLower)
-                .maybeSingle();
+        if (supabaseClient) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .ilike('email', emailLower)
+                    .maybeSingle();
 
-            if (!error && data) {
-                dbUser = data;
+                if (!error && data) {
+                    dbUser = data;
+                }
+            } catch (err) {
+                console.warn('Supabase profile query note:', err);
             }
-        } catch (err) {
-            console.warn('Supabase profile query note:', err);
         }
 
         // 4. Try Local Storage mock users fallback if not found in Supabase
@@ -178,6 +182,7 @@ const db = {
     },
 
     async getAllUsers() {
+        if (!supabaseClient) return [];
         try {
             const { data, error } = await supabaseClient.from('profiles').select('*');
             if (error) return [];
@@ -232,8 +237,11 @@ const db = {
             const products = await apiRequest('/products');
             return products;
         } catch (err) {
-            const { data } = await supabaseClient.from('products').select('*');
-            return data || [];
+            if (!supabaseClient) return [];
+            try {
+                const { data } = await supabaseClient.from('products').select('*');
+                return data || [];
+            } catch (e) { return []; }
         }
     },
 
@@ -244,6 +252,7 @@ const db = {
                 body: JSON.stringify({ price: newPrice })
             });
         } catch (err) {
+            if (!supabaseClient) throw new Error('API unavailable');
             const { data, error } = await supabaseClient
                 .from('products')
                 .update({ price: newPrice, updated_at: new Date().toISOString() })
@@ -261,6 +270,7 @@ const db = {
                 body: JSON.stringify({ name: newName, price: newPrice })
             });
         } catch (err) {
+            if (!supabaseClient) throw new Error('API unavailable');
             const { data, error } = await supabaseClient
                 .from('products')
                 .update({ name: newName, price: newPrice, updated_at: new Date().toISOString() })
@@ -278,6 +288,7 @@ const db = {
                 body: JSON.stringify({ stock_status: status })
             });
         } catch (err) {
+            if (!supabaseClient) throw new Error('API unavailable');
             const { data, error } = await supabaseClient
                 .from('products')
                 .update({ stock_status: status, updated_at: new Date().toISOString() })
@@ -295,6 +306,7 @@ const db = {
                 body: JSON.stringify(product)
             });
         } catch (err) {
+            if (!supabaseClient) throw new Error('API unavailable');
             const record = {
                 id: product.id,
                 price: product.price,
@@ -319,6 +331,7 @@ const db = {
                 method: 'DELETE'
             });
         } catch (err) {
+            if (!supabaseClient) throw new Error('API unavailable');
             const { data } = await supabaseClient.from('products').delete().eq('id', productId);
             return data;
         }
@@ -334,6 +347,7 @@ const db = {
             });
             return [created];
         } catch (err) {
+            if (!supabaseClient) throw new Error('API unavailable');
             const { data, error } = await supabaseClient
                 .from('orders')
                 .insert([{
@@ -371,6 +385,7 @@ const db = {
                 _supabaseId: o.id
             }));
         } catch (err) {
+            if (!supabaseClient) return [];
             const { data } = await supabaseClient
                 .from('orders')
                 .select('*')
@@ -411,6 +426,7 @@ const db = {
                 _supabaseId: o.id
             }));
         } catch (err) {
+            if (!supabaseClient) return [];
             const { data } = await supabaseClient
                 .from('orders')
                 .select('*')
@@ -439,6 +455,7 @@ const db = {
                 body: JSON.stringify({ status: newStatus })
             });
         } catch (err) {
+            if (!supabaseClient) throw new Error('API unavailable');
             const { data, error } = await supabaseClient
                 .from('orders')
                 .update({ status: newStatus })
